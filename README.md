@@ -9,8 +9,8 @@ A simple, safe PWM generator app for Flipper Zero to test **Embraco** inverter c
 - **4 menu items**:
   - **Power off** — PWM stopped (pin driven LOW)
   - **Low speed** — 55 Hz (≈2000 RPM VNE / 1800 RPM VEG & FMF)
-  - **Mid speed** — 100 Hz (≈3000 RPM VNE/VEG/FM F)
-  - **Max speed** — 160 Hz (≈4500 RPM VNE/VEG/FM F)
+  - **Mid speed** — 100 Hz (≈3000 RPM VNE/VEG/FMF)
+  - **Max speed** — 160 Hz (≈4500 RPM VNE/VEG/FMF)
 - **Hardware PWM** on **PA7** for stable frequency, 50% duty.
 - On exit: PA7 returns to **Hi-Z**.
 
