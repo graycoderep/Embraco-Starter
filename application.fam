@@ -5,12 +5,6 @@ App(
     entry_point="embraco_starter",
     requires=["gui"],
     stack_size=2 * 1024,
-
-    # FAP metadata (used for Archive listing & icon)
-    fap_icon="icon_embraco.png",   # PNG 10x10, 1-bit (black/white), stored next to this file
-    fap_category="GPIO",
-    fap_author="Adam Gray (Expert Hub)",
-    fap_weburl="https://experthub.app/",
-
+    fap_icon="icon_embraco.png",
     cdefines=["APP_EMBRACO_STARTER"],
 )
