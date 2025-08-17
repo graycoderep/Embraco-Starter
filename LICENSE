@@ -123,9 +123,9 @@
       You may add Your own copyright statement to Your modifications and
       may provide additional or different license terms and conditions
       for use, reproduction, or distribution of Your modifications, or
-      for any such Derivative Works as a whole, provided Your use,
-      reproduction, and distribution of the Work otherwise complies with
-      the conditions stated in this License.
+      for any such Derivative Works as a whole, provided Your use, reproduction,
+      and distribution of the Work otherwise complies with the conditions
+      stated in this License.
 
    5. Submission of Contributions. Unless You explicitly state otherwise,
       any Contribution intentionally submitted for inclusion in the Work
@@ -186,7 +186,7 @@
       same "printed page" as the copyright notice for easier
       identification within third-party archives.
 
-   Copyright [yyyy] [name of copyright owner]
+   Copyright 2025 Adam Gray
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -199,3 +199,22 @@
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
+
+----------------------------------------------------------------------
+ADDITIONAL TERMS REGARDING GRAPHIC ASSETS (ICON)
+----------------------------------------------------------------------
+
+The software source code of this project is licensed under the Apache License 2.0.
+
+However, the application icon file (`icon_embraco.png`) is © 2025 Adam Gray. All rights reserved.
+
+- You are NOT permitted to copy, redistribute, or modify the icon without explicit
+  prior written permission from the copyright holder.
+- Forks and derivative works of the project must either:
+  (a) remove the icon, or
+  (b) replace it with their own graphic asset.
+
+This restriction applies only to the icon image. All other parts of the project
+remain under the Apache License, Version 2.0.
+
+For more information or permissions, visit: https://experthub.app/
