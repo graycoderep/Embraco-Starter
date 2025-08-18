@@ -4,7 +4,11 @@ App(
     apptype=FlipperAppType.EXTERNAL,
     entry_point="embraco_starter",
     requires=["gui"],
-    stack_size=2 * 1024,
+    stack_size=2048,
     fap_icon="icon_embraco.png",
-    cdefines=["APP_EMBRACO_STARTER"],
+    fap_version="1.0.0",
+    fap_author="Adam Gray (Expert Hub)",
+    fap_weburl="https://experthub.app/",
+    fap_description="Three-speed hardware PWM starter for Embraco compressors (safe Hi-Z startup & exit).",
+    fap_category="Hardware",
 )
