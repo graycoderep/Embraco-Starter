@@ -86,14 +86,16 @@ static const char* HELP_LINES[] = {
     "with 30 RPM steps.",
     "",
     "----------------",
+    "",
     "App created by",
     "Adam Gray",
     "Founder of",
     "Expert Hub",
+    "experthub.app",
+    "",
     "----------------",
     "",
-    "Press BACK",
-    "to start.",
+    "Press BACK to start.",
 };
 #define HELP_LINES_COUNT (sizeof(HELP_LINES)/sizeof(HELP_LINES[0]))
 
