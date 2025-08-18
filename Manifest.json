@@ -1,0 +1,19 @@
+{
+  "appid": "embraco_starter",
+  "name": "Embraco Starter",
+  "version": "1.0.0",
+  "author": "Adam Gray (Expert Hub)",
+  "license": "Apache-2.0",
+  "homepage": "https://experthub.app/",
+  "entry_point": "embraco_starter",
+  "requires": ["gui"],
+  "stack_size": 2048,
+  "fap_icon": "icon_embraco.png", 
+  "short_description": "Three-speed hardware PWM starter for Embraco compressors (safe Hi-Z startup & exit).",
+  "long_description": "Embraco Starter safely tests Embraco inverter compressors using hardware PWM on PA7. The app opens with Help (pin set to Hi-Z), offers Power off, Low (55 Hz), Mid (100 Hz), Max (160 Hz) modes at 50% duty, and returns PA7 to Hi-Z on exit.",
+  "categories": ["GPIO", "Tools", "Hardware"],
+  "screenshots": [
+    "screenshot_1.png",
+    "screenshot_2.png"
+  ]
+}
