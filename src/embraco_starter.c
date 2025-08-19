@@ -2,6 +2,7 @@
 #include <furi_hal.h>
 #include <gui/gui.h>
 #include <gui/view_port.h>
+#include <gui/canvas.h>
 #include <input/input.h>
 #include <notification/notification.h>
 #include <notification/notification_messages.h>
@@ -29,15 +30,13 @@ static inline void pin_to_pp_low(void){
 static inline void pwm_hw_stop_safe(bool* running){
     if(running && *running){
         furi_hal_pwm_stop(PWM_CH);
-        // Дать периферии «отщелкнуться», прежде чем трогать GPIO
         furi_delay_ms(1);
         *running = false;
     }
 }
 
 static inline void pwm_hw_start_safe(uint32_t freq_hz, bool* running){
-    // 50% duty; частота держится «в железе»
-    furi_hal_pwm_start(PWM_CH, freq_hz, 50);
+    furi_hal_pwm_start(PWM_CH, freq_hz, 50); // duty 50%
     if(running) *running = true;
 }
 
@@ -116,6 +115,10 @@ typedef struct {
     // HW PWM state
     bool pwm_running;
 
+    // Hint overlay
+    bool hint_visible;
+    FuriTimer* hint_timer;
+
     // IO
     Gui* gui;
     ViewPort* vp;
@@ -160,15 +163,20 @@ static void apply_mode(AppState* s, uint8_t idx){
     const Mode* m = &kModes[idx];
 
     if(m->freq_hz == 0){
-        // Полное выключение генерации
         pwm_hw_stop_safe(&s->pwm_running);
-        pin_to_pp_low(); // безопасная нагрузка на «0» (не Hi‑Z)
+        pin_to_pp_low(); // безопасно – «0»
     }else{
-        // Гарантированно останавливаем прошлый режим, затем стартуем новый
         pwm_hw_stop_safe(&s->pwm_running);
         pwm_hw_start_safe(m->freq_hz, &s->pwm_running);
     }
     led_apply(s, m->led_blink_hz);
+}
+
+/* ===== Hint timer ===== */
+static void hint_timer_cb(void* ctx){
+    AppState* s = ctx;
+    s->hint_visible = false;
+    if(s->vp) view_port_update(s->vp);
 }
 
 /* ===== UI ===== */
@@ -177,6 +185,7 @@ static void draw_menu(Canvas* c, const AppState* s){
 
     // Заголовок жирным, слева
     canvas_set_font(c, FontPrimary);
+    canvas_set_color(c, ColorBlack);
     canvas_draw_str(c, 4, 14, "Embraco Starter");
 
     // Список: 4 строки, точка справа у активного
@@ -205,11 +214,36 @@ static void draw_menu(Canvas* c, const AppState* s){
             canvas_draw_str(c, 14, y, "Help");
         }
     }
+
+    // Всплывающая подсказка В САМОМ НИЗУ на подложке во всю ширину
+    if(s->hint_visible){
+        const char* msg = "Long press back to exit";
+        canvas_set_font(c, FontSecondary);
+
+        uint16_t text_w = canvas_string_width(c, msg);
+        uint16_t text_h = 10; // примерно для FontSecondary
+
+        // Координата Y: почти нижний край (экран 64px высотой)
+        uint16_t text_y = 64 - 2;
+
+        // Чёрная плашка на всю ширину
+        canvas_set_color(c, ColorBlack);
+        canvas_draw_box(c, 0, (text_y - text_h), 128, (uint16_t)(text_h + 4));
+
+        // Белый текст по центру
+        canvas_set_color(c, ColorWhite);
+        uint16_t text_x = (uint16_t)((128 - text_w) / 2);
+        canvas_draw_str(c, text_x, text_y, msg);
+
+        // Вернуть цвет
+        canvas_set_color(c, ColorBlack);
+    }
 }
 
 static void draw_help(Canvas* c, const AppState* s){
     canvas_clear(c);
     canvas_set_font(c, FontSecondary);
+    canvas_set_color(c, ColorBlack);
 
     // 6 строк без обрезаний
     const uint8_t top = 10;
@@ -239,7 +273,6 @@ static void draw_cb(Canvas* c, void* ctx){
 typedef struct { FuriMessageQueue* q; } InputCtx;
 static void vp_input_cb(InputEvent* e, void* ctx){
     InputCtx* ic = ctx;
-    // Копируем событие, не кладём указатель
     InputEvent ev = *e;
     furi_message_queue_put(ic->q, &ev, 0);
 }
@@ -258,6 +291,8 @@ int32_t embraco_starter(void* p){
         .led_timer = NULL,
         .led_on = false,
         .pwm_running = false,
+        .hint_visible = false,
+        .hint_timer = NULL,
         .gui = NULL,
         .vp = NULL,
         .q = NULL,
@@ -334,6 +369,16 @@ int32_t embraco_starter(void* p){
                             s.active = 0; // визуально: "Power off" активен
                         }
                     }else if(ev.key == InputKeyBack){
+                        // КОРОТКОЕ BACK в меню — показать подсказку о долгом удержании
+                        s.hint_visible = true;
+                        if(!s.hint_timer){
+                            s.hint_timer = furi_timer_alloc(hint_timer_cb, FuriTimerTypeOnce, &s);
+                        }
+                        furi_timer_start(s.hint_timer, furi_ms_to_ticks(1500));
+                    }
+                }else if(ev.type == InputTypeLong){
+                    if(ev.key == InputKeyBack){
+                        // ДОЛГОЕ BACK в меню — выходим из приложения
                         exit = true;
                     }
                 }
@@ -342,11 +387,16 @@ int32_t embraco_starter(void* p){
         }
     }
 
-    /* ===== Cleanup: стоп PWM, Hi‑Z, сброс LED ===== */
+    /* ===== Cleanup: стоп PWM, Hi‑Z, сброс LED и таймеров ===== */
     if(s.led_timer){
         furi_timer_stop(s.led_timer);
         furi_timer_free(s.led_timer);
         s.led_timer = NULL;
+    }
+    if(s.hint_timer){
+        furi_timer_stop(s.hint_timer);
+        furi_timer_free(s.hint_timer);
+        s.hint_timer = NULL;
     }
     pwm_hw_stop_safe(&s.pwm_running);
     pin_to_hiz();
