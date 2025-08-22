@@ -1,0 +1,13 @@
+App(
+    appid="cf10b_tool",
+    name="CF10B Tool",
+    apptype=FlipperAppType.DEFAULT,
+    entry="cf10b_tool_app",
+    requires=[
+        "gui",
+        "input",
+        "storage",
+    ],
+    stack_size=2*1024,
+    order=100,
+)
